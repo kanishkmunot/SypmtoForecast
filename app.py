@@ -1,31 +1,29 @@
 import streamlit as st
 import joblib
-import pandas as pd
+import numpy as np
 
-# Load the saved preprocessing pipeline and trained model
-preprocessor = joblib.load('preprocessor.joblib')
-trained_model = joblib.load('trained_model.joblib')
+# Load the pipeline
+pipeline = joblib.load('model_pipeline.joblib')
 
-# List of possible symptoms (replace with your actual symptom list)
-possible_symptoms = ['Symptom_1', 'Symptom_2', 'Symptom_3', 'Symptom_4', 'Symptom_5', 'Symptom_6', 'Symptom_7', 'Symptom_8', 'Symptom_9', 'Symptom_10', 'Symptom_11', 'Symptom_12', 'Symptom_13', 'Symptom_14', 'Symptom_15', 'Symptom_16', 'Symptom_17']
+def main():
+    st.title('SymptoForecast: Disease Predictor')
 
-# Streamlit app code
-st.title('Disease Predictor App')
+    # Input fields for user to input data
+    features = []  # List to hold feature values
+    for i in range(394):
+        feature = st.number_input(f'Feature {i + 1}:')
+        features.append(feature)
 
-# Multiselect widget for symptom selection
-selected_symptoms = st.multiselect('Select Symptoms', possible_symptoms)
+    # Button to make predictions
+    if st.button('Predict'):
+        # Prepare input data for prediction
+        input_data = np.array([features])  # Create a NumPy array
 
-if st.button("Predict"):
-    # Create a dictionary with selected symptoms
-    input_data = {symptom: (1 if symptom in selected_symptoms else 0) for symptom in possible_symptoms}
-    
-    # Create an input DataFrame from the dictionary
-    input_df = pd.DataFrame([input_data])
+        # Make predictions using the pipeline
+        prediction = pipeline.predict(input_data)
 
-    # Preprocess input data using the loaded preprocessing pipeline
-    preprocessed_data = preprocessor.transform(input_df)
+        # Display the prediction
+        st.write(f'Prediction: {prediction[0]}')
 
-    # Make prediction using the trained model
-    prediction = trained_model.predict(preprocessed_data)
-
-    st.write(f"Predicted Disease: {prediction[0]}")
+if __name__ == '__main__':
+    main()
